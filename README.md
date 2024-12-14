@@ -38,24 +38,27 @@ python script.py ./notion_files ./styles/main.css
 <!-- CODE STRUCTURE -->
 ## Code Structure
 
-### `replace_paths(html_path, subdir_name, new_subdir_name)`
-Replaces all occurrences of `subdir_name` with `new_subdir_name` in the provided HTML file.
+`replace_paths(html_path, subdir_name, new_subdir_name)`
 
-### `replace_style(html_path, css_path)`
-Replaces inline `<style>` blocks in the provided HTML file with a `<link>` tag to the given CSS file.
+- Replaces all occurrences of `subdir_name` with `new_subdir_name` in the provided HTML file.
 
-### `convert_dir(directory: str, css_path: str)`
-Recursively processes a directory and its subdirectories, performing renames and replacements.
+`replace_style(html_path, css_path)`
 
-### `main(dir, css_path)`
-Entry point that initiates the conversion process for a given directory.
+- Replaces inline `<style>` blocks in the provided HTML file with a `<link>` tag to the given CSS file.
+
+`convert_dir(directory: str, css_path: str)`
+
+- Recursively processes a directory and its subdirectories, performing renames and replacements.
+
+`main(dir, css_path)`
+
+- Entry point that initiates the conversion process for a given directory.
 
 ## Getting Started
 
 ### Prerequisites
 
 * Python 3.8 or newer installed
-* Basic knowledge of file paths and working with the command line
 
 ### Installation
 
