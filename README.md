@@ -23,16 +23,21 @@ This script is designed to streamline managing large HTML directories. Use it to
 To run the script:
 
 ```bash
-python cleaner.py <directory_path> <css_file_path>
+python cleaner.py [directory_path] [css_file_path] [-m optional]
 ```
 
-- `directory_path`: The root directory containing HTML files and subdirectories.
+- `directory_path`: The root directory containing HTML files and subdirectories (see `-m` below for multiple directories).
 - `css_file_path`: The relative or absolute path to the CSS file that will be linked to the HTML files.
+- `-m`: (optional) Flag to enable the cleanup over multiple note exports. If specified, `directory_path` should be the parent directory containing multiple note folders.
 
 Example:
 
 ```bash
-python script.py ./notion_files ./styles/main.css
+python script.py ./notion_files ./styles.css -m
+```
+
+```bash
+python script.py ./all_notes ../styles.css -m
 ```
 
 <!-- CODE STRUCTURE -->

@@ -1,3 +1,4 @@
+import sys
 import re
 import os
 import urllib.parse # to URL encode a string
@@ -43,7 +44,6 @@ def replace_style(html_path, css_path):
     with open(html_path, 'w') as f:
         f.write(content)
 
-
 def convert_dir(directory: str, css_path: str) -> list[tuple[str, str]]:
     '''
     This is a recursive function which will convert all subdirectories
@@ -55,6 +55,14 @@ def convert_dir(directory: str, css_path: str) -> list[tuple[str, str]]:
     @return: a list of tuples of the form (old_subdir_name, new_subdir_name)
     This is needed to update the html files of the parent directory as it
     references pages in the nested directories (if any).
+
+    @explanation:
+    The directory contains 0+ sub-directies (name is unknown) and one .html file (name is unknown).
+    For the sake of explanation, let's assume the sub-directory is named 'assets' and that the .html file is named 'index.html'
+    Repeat for the directory and every nested sub-directory:
+    1. Chop off the ugly hex IDs at the end every html file / sub-directory
+    3. Edit the HTML files to reflect the new names
+    4. All all html files in a notion directory contain the same .css file. Replace all <style>...</style> blocks with a <link> tag that points to a single css file.
     '''
 
     print(f'CLEANING: {directory}')
@@ -80,6 +88,7 @@ def convert_dir(directory: str, css_path: str) -> list[tuple[str, str]]:
 
             # Chop off ugly ID from file names:
             chop_idx = subdir_name.rfind(' ')
+            chop_idx = min(chop_idx, len(subdir_name))  # this should not happen if you did not manually rename the folder
             new_subdir_name = subdir_name[:chop_idx]
             new_html_name = html_name[:chop_idx] + '.html'
 
@@ -116,20 +125,38 @@ def convert_dir(directory: str, css_path: str) -> list[tuple[str, str]]:
 
         return dir_replacements
 
-def main(dir, css_path):
-    '''
-    The directory contains 0+ sub-directies (name is unknown) and one .html file (name is unknown).
-    For the sake of explanation, let's assume the sub-directory is named 'assets' and that the .html file is named 'index.html'
-    Repeat for the directory and every nested sub-directory:
-    1. Chop off the ugly hex IDs at the end every html file / sub-directory
-    3. Edit the HTML files to reflect the new names
-    4. All all html files in a notion directory contain the same .css file. Replace all <style>...</style> blocks with a <link> tag that points to a single css file.
-    '''
-    # This is a recursive function which will convert all subdirectories
-    # until it reaches the base case; no more subdirectories
-    convert_dir(dir, css_path)
+
+def main(dir, css_path, convert_multiple=False):
+    # recursive function which will convert all subdirectories
+    if not convert_multiple:
+        convert_dir(dir, css_path)
+    else:
+        # => dir specifies a folder with multiple note folders (exports from Notion):
+        # so repeat the process for each note folder:
+
+        # get the list of all folders inside dir:
+        subdirs = os.listdir(dir)
+        subdirs = list(filter(lambda f: os.path.isdir(os.path.join(dir, f)), subdirs))
+        directories = [os.path.join(dir, f) for f in subdirs]
+
+        N = len(directories)
+        for i, directory in enumerate(directories):
+            print(f"NOTE {i+1}/{N}: {directory}")
+            convert_dir(directory, css_path)
+
 
 # call the main function with the directory from the command line
 if __name__ == '__main__':
-    import sys
-    main(sys.argv[1], sys.argv[2])
+    '''
+    Arguments:
+    1. The directory to convert
+    2. The path to the css file (relative to the directory)
+    3. (optional) -m: wether or not to convert multiple directories or just one
+    '''
+
+    args = sys.argv[1:]
+    dir, css_path = args[:2]
+
+    convert_multiple = (len(args) == 3 and args[2] == '-m')
+
+    main(dir, css_path, convert_multiple)
